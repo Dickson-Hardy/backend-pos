@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from "@nestjs/common"
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import type { Model } from "mongoose"
 import { Sale, type SaleDocument } from "../../schemas/sale.schema"
+import { PackVariant, type PackVariantDocument } from "../../schemas/pack-variant.schema"
 import { ProductsService } from "../products/products.service"
 import type { CreateSaleDto } from "./dto/create-sale.dto"
 
@@ -9,6 +10,7 @@ import type { CreateSaleDto } from "./dto/create-sale.dto"
 export class SalesService {
   constructor(
     @InjectModel(Sale.name) private saleModel: Model<SaleDocument>,
+    @InjectModel(PackVariant.name) private packVariantModel: Model<PackVariantDocument>,
     private productsService: ProductsService,
   ) {}
 
@@ -16,9 +18,15 @@ export class SalesService {
     // Generate receipt number
     const receiptNumber = await this.generateReceiptNumber()
 
-    // Update product stock for each item
+    // Process inventory deduction for each item
     for (const item of createSaleDto.items) {
-      await this.productsService.updateStock(item.productId.toString(), -item.quantity)
+      if (item.packInfo) {
+        // Handle pack-based sales
+        await this.processPackSale(item.productId.toString(), item.packInfo)
+      } else {
+        // Handle traditional unit-based sales
+        await this.productsService.updateStock(item.productId.toString(), -item.quantity)
+      }
     }
 
     const sale = new this.saleModel({
@@ -27,6 +35,33 @@ export class SalesService {
     })
 
     return sale.save()
+  }
+
+  private async processPackSale(productId: string, packInfo: any): Promise<void> {
+    if (packInfo.saleType === 'pack' && packInfo.packVariantId) {
+      // Validate pack variant exists and is active
+      const packVariant = await this.packVariantModel.findById(packInfo.packVariantId).exec()
+      if (!packVariant || !packVariant.isActive) {
+        throw new BadRequestException('Invalid or inactive pack variant')
+      }
+      
+      // Verify pack variant belongs to the product
+      if (packVariant.productId.toString() !== productId) {
+        throw new BadRequestException('Pack variant does not belong to the specified product')
+      }
+      
+      // Calculate total units to deduct (pack quantity * pack size)
+      const totalUnitsToDeduct = (packInfo.packQuantity || 0) * packVariant.packSize
+      
+      // Deduct from product stock
+      await this.productsService.updateStock(productId, -totalUnitsToDeduct)
+    } else if (packInfo.saleType === 'unit') {
+      // Handle individual unit sales
+      await this.productsService.updateStock(productId, -(packInfo.unitQuantity || 0))
+    } else {
+      // Use effectiveUnitCount as fallback
+      await this.productsService.updateStock(productId, -packInfo.effectiveUnitCount)
+    }
   }
 
   async findAll(outletId?: string, startDate?: Date, endDate?: Date): Promise<Sale[]> {

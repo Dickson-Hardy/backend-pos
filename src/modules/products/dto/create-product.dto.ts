@@ -1,6 +1,8 @@
-import { IsString, IsNumber, IsEnum, IsOptional, IsArray, IsBoolean } from "class-validator"
+import { IsString, IsNumber, IsEnum, IsOptional, IsArray, IsBoolean, ValidateNested } from "class-validator"
+import { Type } from "class-transformer"
 import { ApiProperty } from "@nestjs/swagger"
 import { ProductCategory, UnitOfMeasure } from "../../../schemas/product.schema"
+import { CreatePackVariantDto } from "./pack-variant.dto"
 
 export class CreateProductDto {
   @ApiProperty({ example: "Paracetamol 500mg" })
@@ -88,4 +90,16 @@ export class CreateProductDto {
   @ApiProperty()
   @IsString()
   outletId: string
+
+  @ApiProperty({ example: true, description: "Whether individual units can be sold" })
+  @IsOptional()
+  @IsBoolean()
+  allowUnitSale?: boolean
+
+  @ApiProperty({ type: [CreatePackVariantDto], description: "Pack variants for this product", required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePackVariantDto)
+  packVariants?: CreatePackVariantDto[]
 }

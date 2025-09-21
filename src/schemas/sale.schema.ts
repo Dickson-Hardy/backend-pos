@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { type Document, Types } from "mongoose"
+import { SalePackInfo, SalePackInfoSchema } from "./sale-pack-info.schema"
 
 export type SaleDocument = Sale & Document
 
@@ -39,6 +40,9 @@ export class SaleItem {
 
   @Prop()
   discount: number
+
+  @Prop({ type: SalePackInfoSchema })
+  packInfo?: SalePackInfo // pack vs unit sale details
 }
 
 @Schema({ timestamps: true })

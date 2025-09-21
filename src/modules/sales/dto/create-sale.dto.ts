@@ -2,6 +2,7 @@ import { IsString, IsNumber, IsEnum, IsOptional, IsArray, ValidateNested } from 
 import { Type } from "class-transformer"
 import { ApiProperty } from "@nestjs/swagger"
 import { PaymentMethod } from "../../../schemas/sale.schema"
+import { CreateSalePackInfoDto } from "./sale-pack-info.dto"
 
 export class SaleItemDto {
   @ApiProperty()
@@ -33,6 +34,12 @@ export class SaleItemDto {
   @IsOptional()
   @IsNumber()
   discount?: number
+
+  @ApiProperty({ type: CreateSalePackInfoDto, description: "Pack vs unit sale details", required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateSalePackInfoDto)
+  packInfo?: CreateSalePackInfoDto
 }
 
 export class CreateSaleDto {

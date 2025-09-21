@@ -110,6 +110,22 @@ export class Product {
 
   @Prop({ type: Types.ObjectId, ref: "Outlet" })
   outletId: Types.ObjectId
+
+  @Prop({ default: true })
+  allowUnitSale: boolean // whether individual units can be sold
+
+  // Pack variants will be populated via virtual populate
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product)
+
+// Virtual populate for pack variants
+ProductSchema.virtual('packVariants', {
+  ref: 'PackVariant',
+  localField: '_id',
+  foreignField: 'productId',
+})
+
+// Ensure virtual fields are serialized
+ProductSchema.set('toJSON', { virtuals: true })
+ProductSchema.set('toObject', { virtuals: true })

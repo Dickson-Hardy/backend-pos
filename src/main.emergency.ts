@@ -15,17 +15,15 @@ async function bootstrap() {
     }),
   )
 
-  // SIMPLIFIED CORS CONFIGURATION - GUARANTEED TO WORK
-  console.log('🔧 Environment Check:')
-  console.log('  NODE_ENV:', process.env.NODE_ENV)
-  console.log('  FRONTEND_URL:', process.env.FRONTEND_URL)
-  console.log('  PORT:', process.env.PORT)
+  // EMERGENCY CORS FIX - GUARANTEED TO WORK
+  console.log('🚨 Using emergency CORS configuration')
+  console.log('🔧 Environment FRONTEND_URL:', process.env.FRONTEND_URL)
+  console.log('🔧 Node ENV:', process.env.NODE_ENV)
   
   const isProduction = process.env.NODE_ENV === 'production'
   
   if (isProduction) {
-    // Production: Specific origins only
-    console.log('� Configuring PRODUCTION CORS')
+    // Production CORS - specific origins only
     app.enableCors({
       origin: [
         'https://frontend-pos-gold.vercel.app',
@@ -39,19 +37,19 @@ async function bootstrap() {
         'Authorization', 
         'X-Requested-With',
         'Accept',
-        'Origin'
+        'Origin',
+        'Cache-Control'
       ],
       optionsSuccessStatus: 200
     })
-    console.log('✅ Production CORS configured for Vercel frontend')
+    console.log('✅ Production CORS enabled for specific origins')
   } else {
-    // Development: More permissive
-    console.log('🛠️ Configuring DEVELOPMENT CORS')
+    // Development CORS - more permissive
     app.enableCors({
-      origin: ['http://localhost:3000', 'http://localhost:3001'],
+      origin: true,
       credentials: true
     })
-    console.log('✅ Development CORS configured for localhost')
+    console.log('✅ Development CORS enabled (permissive)')
   }
 
   // Swagger documentation
@@ -72,6 +70,7 @@ async function bootstrap() {
   await app.listen(port)
   console.log(`🚀 Pharmacy POS Backend running on port ${port}`)
   console.log(`📚 API Documentation available at http://localhost:${port}/api/docs`)
+  console.log(`🌐 CORS configured for: ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'}`)
 }
 
 bootstrap()

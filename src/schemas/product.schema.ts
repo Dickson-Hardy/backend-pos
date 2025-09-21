@@ -48,7 +48,7 @@ export class Product {
   @Prop({ required: true })
   name: string
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   sku: string
 
   @Prop()
@@ -118,6 +118,9 @@ export class Product {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product)
+
+// Unique SKU per outlet
+ProductSchema.index({ sku: 1, outletId: 1 }, { unique: true })
 
 // Virtual populate for pack variants
 ProductSchema.virtual('packVariants', {

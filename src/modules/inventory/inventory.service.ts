@@ -1,8 +1,9 @@
-import { Injectable } from "@nestjs/common"
+import { Injectable, NotFoundException } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import type { Model } from "mongoose"
 import { InventoryAdjustment, type InventoryAdjustmentDocument } from "../../schemas/inventory-adjustment.schema"
 import { PackVariant, type PackVariantDocument } from "../../schemas/pack-variant.schema"
+import { Batch, type BatchDocument } from "../../schemas/batch.schema"
 import { ProductsService } from "../products/products.service"
 import { PackUtils } from "../../utils/pack-utils"
 import type { CreateInventoryAdjustmentDto } from "./dto/create-inventory-adjustment.dto"
@@ -13,6 +14,7 @@ export class InventoryService {
   constructor(
     @InjectModel(InventoryAdjustment.name) private inventoryAdjustmentModel: Model<InventoryAdjustmentDocument>,
     @InjectModel(PackVariant.name) private packVariantModel: Model<PackVariantDocument>,
+    @InjectModel(Batch.name) private batchModel: Model<BatchDocument>,
     private productsService: ProductsService,
   ) {}
 
@@ -89,5 +91,73 @@ export class InventoryService {
       looseUnits: breakdown.looseUnits,
       formattedDisplay: PackUtils.formatInventoryDisplay(product.stockQuantity, packVariants),
     }
+  }
+
+  // Inventory item updates (reorder/max levels live on Product)
+  async updateInventoryItem(productId: string, update: { reorderLevel?: number; maxStockLevel?: number }) {
+    const product = await this.productsService.update(productId, update as any)
+    return product
+  }
+
+  // Batch CRUD
+  async listBatches(outletId?: string, productId?: string) {
+    const filter: any = {}
+    if (outletId) filter.outletId = outletId
+    if (productId) filter.productId = productId
+    return this.batchModel.find(filter).exec()
+  }
+
+  async getBatch(id: string) {
+    const batch = await this.batchModel.findById(id).exec()
+    if (!batch) throw new NotFoundException('Batch not found')
+    return batch
+  }
+
+  async createBatch(dto: {
+    batchNumber: string
+    productId: string
+    outletId: string
+    manufacturingDate: string
+    expiryDate: string
+    quantity: number
+    costPrice: number
+    sellingPrice: number
+    supplierName?: string
+    supplierInvoice?: string
+    notes?: string
+  }) {
+    const batch = new this.batchModel({
+      ...dto,
+      manufacturingDate: new Date(dto.manufacturingDate),
+      expiryDate: new Date(dto.expiryDate),
+    })
+    return batch.save()
+  }
+
+  async updateBatch(id: string, dto: Partial<{
+    batchNumber: string
+    manufacturingDate: string
+    expiryDate: string
+    quantity: number
+    soldQuantity: number
+    costPrice: number
+    sellingPrice: number
+    status: string
+    supplierName?: string
+    supplierInvoice?: string
+    notes?: string
+  }>) {
+    const update: any = { ...dto }
+    if (dto.manufacturingDate) update.manufacturingDate = new Date(dto.manufacturingDate)
+    if (dto.expiryDate) update.expiryDate = new Date(dto.expiryDate)
+    const batch = await this.batchModel.findByIdAndUpdate(id, update, { new: true }).exec()
+    if (!batch) throw new NotFoundException('Batch not found')
+    return batch
+  }
+
+  async deleteBatch(id: string) {
+    const res = await this.batchModel.findByIdAndDelete(id).exec()
+    if (!res) throw new NotFoundException('Batch not found')
+    return { success: true }
   }
 }

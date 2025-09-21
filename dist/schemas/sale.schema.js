@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SaleSchema = exports.Sale = exports.SaleItem = exports.SaleStatus = exports.PaymentMethod = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const sale_pack_info_schema_1 = require("./sale-pack-info.schema");
 var PaymentMethod;
 (function (PaymentMethod) {
     PaymentMethod["CASH"] = "cash";
@@ -57,6 +58,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], SaleItem.prototype, "discount", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: sale_pack_info_schema_1.SalePackInfoSchema }),
+    __metadata("design:type", sale_pack_info_schema_1.SalePackInfo)
+], SaleItem.prototype, "packInfo", void 0);
 exports.SaleItem = SaleItem = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], SaleItem);

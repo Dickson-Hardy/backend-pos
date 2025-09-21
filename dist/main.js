@@ -11,10 +11,40 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
-    app.enableCors({
-        origin: process.env.FRONTEND_URL || "http://localhost:3000",
-        credentials: true,
-    });
+    console.log('🔧 Environment Check:');
+    console.log('  NODE_ENV:', process.env.NODE_ENV);
+    console.log('  FRONTEND_URL:', process.env.FRONTEND_URL);
+    console.log('  PORT:', process.env.PORT);
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (isProduction) {
+        console.log('� Configuring PRODUCTION CORS');
+        app.enableCors({
+            origin: [
+                'https://frontend-pos-gold.vercel.app',
+                'https://frontend-pos-gold.vercel.app/',
+                'http://localhost:3000'
+            ],
+            credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+            allowedHeaders: [
+                'Content-Type',
+                'Authorization',
+                'X-Requested-With',
+                'Accept',
+                'Origin'
+            ],
+            optionsSuccessStatus: 200
+        });
+        console.log('✅ Production CORS configured for Vercel frontend');
+    }
+    else {
+        console.log('🛠️ Configuring DEVELOPMENT CORS');
+        app.enableCors({
+            origin: ['http://localhost:3000', 'http://localhost:3001'],
+            credentials: true
+        });
+        console.log('✅ Development CORS configured for localhost');
+    }
     const config = new swagger_1.DocumentBuilder()
         .setTitle("Pharmacy POS API")
         .setDescription("Pharmacy Point of Sale Management System API")

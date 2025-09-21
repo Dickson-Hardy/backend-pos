@@ -19,6 +19,9 @@ const inventory_service_1 = require("./inventory.service");
 const create_inventory_adjustment_dto_1 = require("./dto/create-inventory-adjustment.dto");
 const products_service_1 = require("../products/products.service");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
+const update_inventory_item_dto_1 = require("./dto/update-inventory-item.dto");
+const create_batch_dto_1 = require("./dto/create-batch.dto");
+const update_batch_dto_1 = require("./dto/update-batch.dto");
 let InventoryController = class InventoryController {
     constructor(inventoryService, productsService) {
         this.inventoryService = inventoryService;
@@ -46,8 +49,23 @@ let InventoryController = class InventoryController {
     getAdjustments(outletId, productId) {
         return this.inventoryService.getAdjustmentHistory(outletId, productId);
     }
-    getBatches(outletId) {
-        return [];
+    getBatches(outletId, productId) {
+        return this.inventoryService.listBatches(outletId, productId);
+    }
+    updateInventoryItem(productId, dto) {
+        return this.inventoryService.updateInventoryItem(productId, dto);
+    }
+    getBatch(id) {
+        return this.inventoryService.getBatch(id);
+    }
+    createBatch(dto) {
+        return this.inventoryService.createBatch(dto);
+    }
+    updateBatch(id, dto) {
+        return this.inventoryService.updateBatch(id, dto);
+    }
+    deleteBatch(id) {
+        return this.inventoryService.deleteBatch(id);
     }
 };
 exports.InventoryController = InventoryController;
@@ -92,11 +110,56 @@ __decorate([
     (0, common_1.Get)("batches"),
     (0, swagger_1.ApiOperation)({ summary: "Get inventory batches" }),
     (0, swagger_1.ApiQuery)({ name: "outletId", required: false }),
+    (0, swagger_1.ApiQuery)({ name: "productId", required: false }),
     __param(0, (0, common_1.Query)("outletId")),
+    __param(1, (0, common_1.Query)("productId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], InventoryController.prototype, "getBatches", null);
+__decorate([
+    (0, common_1.Patch)("items/:productId"),
+    (0, swagger_1.ApiOperation)({ summary: "Update inventory item thresholds" }),
+    (0, swagger_1.ApiParam)({ name: "productId" }),
+    __param(0, (0, common_1.Param)("productId")),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_inventory_item_dto_1.UpdateInventoryItemDto]),
+    __metadata("design:returntype", void 0)
+], InventoryController.prototype, "updateInventoryItem", null);
+__decorate([
+    (0, common_1.Get)("batches/:id"),
+    (0, swagger_1.ApiOperation)({ summary: "Get a batch by id" }),
+    __param(0, (0, common_1.Param)("id")),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], InventoryController.prototype, "getBatches", null);
+], InventoryController.prototype, "getBatch", null);
+__decorate([
+    (0, common_1.Post)("batches"),
+    (0, swagger_1.ApiOperation)({ summary: "Create a batch" }),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_batch_dto_1.CreateBatchDto]),
+    __metadata("design:returntype", void 0)
+], InventoryController.prototype, "createBatch", null);
+__decorate([
+    (0, common_1.Patch)("batches/:id"),
+    (0, swagger_1.ApiOperation)({ summary: "Update a batch" }),
+    __param(0, (0, common_1.Param)("id")),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, update_batch_dto_1.UpdateBatchDto]),
+    __metadata("design:returntype", void 0)
+], InventoryController.prototype, "updateBatch", null);
+__decorate([
+    (0, common_1.Delete)("batches/:id"),
+    (0, swagger_1.ApiOperation)({ summary: "Delete a batch" }),
+    __param(0, (0, common_1.Param)("id")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], InventoryController.prototype, "deleteBatch", null);
 exports.InventoryController = InventoryController = __decorate([
     (0, swagger_1.ApiTags)("inventory"),
     (0, swagger_1.ApiBearerAuth)(),

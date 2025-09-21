@@ -1,4 +1,5 @@
 import { ProductCategory, UnitOfMeasure } from "../../../schemas/product.schema";
+import { CreatePackVariantDto } from "./pack-variant.dto";
 export declare class CreateProductDto {
     name: string;
     sku: string;
@@ -20,4 +21,6 @@ export declare class CreateProductDto {
     dosageInstructions?: string;
     storageInstructions?: string;
     outletId: string;
+    allowUnitSale?: boolean;
+    packVariants?: CreatePackVariantDto[];
 }

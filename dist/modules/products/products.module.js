@@ -13,6 +13,7 @@ const products_controller_1 = require("./products.controller");
 const products_service_1 = require("./products.service");
 const product_schema_1 = require("../../schemas/product.schema");
 const batch_schema_1 = require("../../schemas/batch.schema");
+const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
@@ -22,6 +23,7 @@ exports.ProductsModule = ProductsModule = __decorate([
             mongoose_1.MongooseModule.forFeature([
                 { name: product_schema_1.Product.name, schema: product_schema_1.ProductSchema },
                 { name: batch_schema_1.Batch.name, schema: batch_schema_1.BatchSchema },
+                { name: pack_variant_schema_1.PackVariant.name, schema: pack_variant_schema_1.PackVariantSchema },
             ]),
         ],
         controllers: [products_controller_1.ProductsController],

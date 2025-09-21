@@ -12,13 +12,20 @@ const mongoose_1 = require("@nestjs/mongoose");
 const sales_controller_1 = require("./sales.controller");
 const sales_service_1 = require("./sales.service");
 const sale_schema_1 = require("../../schemas/sale.schema");
+const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
 const products_module_1 = require("../products/products.module");
 let SalesModule = class SalesModule {
 };
 exports.SalesModule = SalesModule;
 exports.SalesModule = SalesModule = __decorate([
     (0, common_1.Module)({
-        imports: [mongoose_1.MongooseModule.forFeature([{ name: sale_schema_1.Sale.name, schema: sale_schema_1.SaleSchema }]), products_module_1.ProductsModule],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: sale_schema_1.Sale.name, schema: sale_schema_1.SaleSchema },
+                { name: pack_variant_schema_1.PackVariant.name, schema: pack_variant_schema_1.PackVariantSchema },
+            ]),
+            products_module_1.ProductsModule
+        ],
         controllers: [sales_controller_1.SalesController],
         providers: [sales_service_1.SalesService],
         exports: [sales_service_1.SalesService],

@@ -14,6 +14,7 @@ const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
 const sale_schema_1 = require("../../../schemas/sale.schema");
+const sale_pack_info_dto_1 = require("./sale-pack-info.dto");
 class SaleItemDto {
 }
 exports.SaleItemDto = SaleItemDto;
@@ -54,6 +55,13 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], SaleItemDto.prototype, "discount", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: sale_pack_info_dto_1.CreateSalePackInfoDto, description: "Pack vs unit sale details", required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.ValidateNested)(),
+    (0, class_transformer_1.Type)(() => sale_pack_info_dto_1.CreateSalePackInfoDto),
+    __metadata("design:type", sale_pack_info_dto_1.CreateSalePackInfoDto)
+], SaleItemDto.prototype, "packInfo", void 0);
 class CreateSaleDto {
 }
 exports.CreateSaleDto = CreateSaleDto;

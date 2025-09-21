@@ -4,6 +4,7 @@ import { InventoryController } from "./inventory.controller"
 import { InventoryService } from "./inventory.service"
 import { InventoryAdjustment, InventoryAdjustmentSchema } from "../../schemas/inventory-adjustment.schema"
 import { PackVariant, PackVariantSchema } from "../../schemas/pack-variant.schema"
+import { Batch, BatchSchema } from "../../schemas/batch.schema"
 import { ProductsModule } from "../products/products.module"
 
 @Module({
@@ -11,6 +12,7 @@ import { ProductsModule } from "../products/products.module"
     MongooseModule.forFeature([
       { name: InventoryAdjustment.name, schema: InventoryAdjustmentSchema },
       { name: PackVariant.name, schema: PackVariantSchema },
+      { name: Batch.name, schema: BatchSchema },
     ]),
     ProductsModule,
   ],

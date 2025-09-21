@@ -143,8 +143,19 @@ __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: "Outlet" }),
     __metadata("design:type", mongoose_2.Types.ObjectId)
 ], Product.prototype, "outletId", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: true }),
+    __metadata("design:type", Boolean)
+], Product.prototype, "allowUnitSale", void 0);
 exports.Product = Product = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Product);
 exports.ProductSchema = mongoose_1.SchemaFactory.createForClass(Product);
+exports.ProductSchema.virtual('packVariants', {
+    ref: 'PackVariant',
+    localField: '_id',
+    foreignField: 'productId',
+});
+exports.ProductSchema.set('toJSON', { virtuals: true });
+exports.ProductSchema.set('toObject', { virtuals: true });
 //# sourceMappingURL=product.schema.js.map

@@ -1,4 +1,5 @@
 import { PaymentMethod } from "../../../schemas/sale.schema";
+import { CreateSalePackInfoDto } from "./sale-pack-info.dto";
 export declare class SaleItemDto {
     productId: string;
     productName: string;
@@ -7,6 +8,7 @@ export declare class SaleItemDto {
     totalPrice: number;
     batchNumber?: string;
     discount?: number;
+    packInfo?: CreateSalePackInfoDto;
 }
 export declare class CreateSaleDto {
     outletId: string;

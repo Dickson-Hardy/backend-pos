@@ -16,22 +16,48 @@ exports.SalesService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const sale_schema_1 = require("../../schemas/sale.schema");
+const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
 const products_service_1 = require("../products/products.service");
 let SalesService = class SalesService {
-    constructor(saleModel, productsService) {
+    constructor(saleModel, packVariantModel, productsService) {
         this.saleModel = saleModel;
+        this.packVariantModel = packVariantModel;
         this.productsService = productsService;
     }
     async create(createSaleDto) {
         const receiptNumber = await this.generateReceiptNumber();
         for (const item of createSaleDto.items) {
-            await this.productsService.updateStock(item.productId.toString(), -item.quantity);
+            if (item.packInfo) {
+                await this.processPackSale(item.productId.toString(), item.packInfo);
+            }
+            else {
+                await this.productsService.updateStock(item.productId.toString(), -item.quantity);
+            }
         }
         const sale = new this.saleModel({
             ...createSaleDto,
             receiptNumber,
         });
         return sale.save();
+    }
+    async processPackSale(productId, packInfo) {
+        if (packInfo.saleType === 'pack' && packInfo.packVariantId) {
+            const packVariant = await this.packVariantModel.findById(packInfo.packVariantId).exec();
+            if (!packVariant || !packVariant.isActive) {
+                throw new common_1.BadRequestException('Invalid or inactive pack variant');
+            }
+            if (packVariant.productId.toString() !== productId) {
+                throw new common_1.BadRequestException('Pack variant does not belong to the specified product');
+            }
+            const totalUnitsToDeduct = (packInfo.packQuantity || 0) * packVariant.packSize;
+            await this.productsService.updateStock(productId, -totalUnitsToDeduct);
+        }
+        else if (packInfo.saleType === 'unit') {
+            await this.productsService.updateStock(productId, -(packInfo.unitQuantity || 0));
+        }
+        else {
+            await this.productsService.updateStock(productId, -packInfo.effectiveUnitCount);
+        }
     }
     async findAll(outletId, startDate, endDate) {
         const filter = {};
@@ -94,6 +120,7 @@ exports.SalesService = SalesService;
 exports.SalesService = SalesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(sale_schema_1.Sale.name)),
-    __metadata("design:paramtypes", [Function, products_service_1.ProductsService])
+    __param(1, (0, mongoose_1.InjectModel)(pack_variant_schema_1.PackVariant.name)),
+    __metadata("design:paramtypes", [Function, Function, products_service_1.ProductsService])
 ], SalesService);
 //# sourceMappingURL=sales.service.js.map

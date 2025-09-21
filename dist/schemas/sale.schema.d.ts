@@ -1,4 +1,5 @@
 import { type Document, Types } from "mongoose";
+import { SalePackInfo } from "./sale-pack-info.schema";
 export type SaleDocument = Sale & Document;
 export declare enum PaymentMethod {
     CASH = "cash",
@@ -20,6 +21,7 @@ export declare class SaleItem {
     totalPrice: number;
     batchNumber: string;
     discount: number;
+    packInfo?: SalePackInfo;
 }
 export declare class Sale {
     receiptNumber: string;

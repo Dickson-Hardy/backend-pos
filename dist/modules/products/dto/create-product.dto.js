@@ -11,8 +11,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateProductDto = void 0;
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 const swagger_1 = require("@nestjs/swagger");
 const product_schema_1 = require("../../../schemas/product.schema");
+const pack_variant_dto_1 = require("./pack-variant.dto");
 class CreateProductDto {
 }
 exports.CreateProductDto = CreateProductDto;
@@ -122,4 +124,18 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "outletId", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ example: true, description: "Whether individual units can be sold" }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateProductDto.prototype, "allowUnitSale", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: [pack_variant_dto_1.CreatePackVariantDto], description: "Pack variants for this product", required: false }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.ValidateNested)({ each: true }),
+    (0, class_transformer_1.Type)(() => pack_variant_dto_1.CreatePackVariantDto),
+    __metadata("design:type", Array)
+], CreateProductDto.prototype, "packVariants", void 0);
 //# sourceMappingURL=create-product.dto.js.map

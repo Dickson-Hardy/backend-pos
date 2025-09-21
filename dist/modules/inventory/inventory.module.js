@@ -12,6 +12,8 @@ const mongoose_1 = require("@nestjs/mongoose");
 const inventory_controller_1 = require("./inventory.controller");
 const inventory_service_1 = require("./inventory.service");
 const inventory_adjustment_schema_1 = require("../../schemas/inventory-adjustment.schema");
+const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
+const batch_schema_1 = require("../../schemas/batch.schema");
 const products_module_1 = require("../products/products.module");
 let InventoryModule = class InventoryModule {
 };
@@ -19,7 +21,11 @@ exports.InventoryModule = InventoryModule;
 exports.InventoryModule = InventoryModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: inventory_adjustment_schema_1.InventoryAdjustment.name, schema: inventory_adjustment_schema_1.InventoryAdjustmentSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: inventory_adjustment_schema_1.InventoryAdjustment.name, schema: inventory_adjustment_schema_1.InventoryAdjustmentSchema },
+                { name: pack_variant_schema_1.PackVariant.name, schema: pack_variant_schema_1.PackVariantSchema },
+                { name: batch_schema_1.Batch.name, schema: batch_schema_1.BatchSchema },
+            ]),
             products_module_1.ProductsModule,
         ],
         controllers: [inventory_controller_1.InventoryController],

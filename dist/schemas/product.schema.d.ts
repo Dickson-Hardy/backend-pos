@@ -60,6 +60,7 @@ export declare class Product {
     dosageInstructions: string;
     storageInstructions: string;
     outletId: Types.ObjectId;
+    allowUnitSale: boolean;
 }
 export declare const ProductSchema: import("mongoose").Schema<Product, import("mongoose").Model<Product, any, any, any, Document<unknown, any, Product> & Product & {
     _id: Types.ObjectId;

@@ -47,6 +47,8 @@ export class InventoryController {
   @Post("adjust")
   @ApiOperation({ summary: "Adjust inventory" })
   adjust(@Body() createAdjustmentDto: CreateInventoryAdjustmentDto) {
+    console.log('=== CONTROLLER: Inventory adjustment request ===')
+    console.log('DTO received:', createAdjustmentDto)
     return this.inventoryService.adjustInventory(createAdjustmentDto)
   }
 

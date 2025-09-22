@@ -60,7 +60,7 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "name", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, unique: true }),
+    (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], Product.prototype, "sku", void 0);
 __decorate([
@@ -151,6 +151,7 @@ exports.Product = Product = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Product);
 exports.ProductSchema = mongoose_1.SchemaFactory.createForClass(Product);
+exports.ProductSchema.index({ sku: 1, outletId: 1 }, { unique: true });
 exports.ProductSchema.virtual('packVariants', {
     ref: 'PackVariant',
     localField: '_id',

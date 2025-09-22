@@ -1,4 +1,4 @@
-import type { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import { InventoryAdjustment, type InventoryAdjustmentDocument } from "../../schemas/inventory-adjustment.schema";
 import { type PackVariantDocument } from "../../schemas/pack-variant.schema";
 import { Batch, type BatchDocument } from "../../schemas/batch.schema";
@@ -25,10 +25,10 @@ export declare class InventoryService {
         maxStockLevel?: number;
     }): Promise<import("../../schemas/product.schema").Product>;
     listBatches(outletId?: string, productId?: string): Promise<(import("mongoose").Document<unknown, {}, BatchDocument> & Batch & import("mongoose").Document<any, any, any> & {
-        _id: import("mongoose").Types.ObjectId;
+        _id: Types.ObjectId;
     })[]>;
     getBatch(id: string): Promise<import("mongoose").Document<unknown, {}, BatchDocument> & Batch & import("mongoose").Document<any, any, any> & {
-        _id: import("mongoose").Types.ObjectId;
+        _id: Types.ObjectId;
     }>;
     createBatch(dto: {
         batchNumber: string;
@@ -43,7 +43,7 @@ export declare class InventoryService {
         supplierInvoice?: string;
         notes?: string;
     }): Promise<import("mongoose").Document<unknown, {}, BatchDocument> & Batch & import("mongoose").Document<any, any, any> & {
-        _id: import("mongoose").Types.ObjectId;
+        _id: Types.ObjectId;
     }>;
     updateBatch(id: string, dto: Partial<{
         batchNumber: string;
@@ -58,7 +58,7 @@ export declare class InventoryService {
         supplierInvoice?: string;
         notes?: string;
     }>): Promise<import("mongoose").Document<unknown, {}, BatchDocument> & Batch & import("mongoose").Document<any, any, any> & {
-        _id: import("mongoose").Types.ObjectId;
+        _id: Types.ObjectId;
     }>;
     deleteBatch(id: string): Promise<{
         success: boolean;

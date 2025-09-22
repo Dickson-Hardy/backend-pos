@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateInventoryAdjustmentDto = void 0;
 const class_validator_1 = require("class-validator");
 const swagger_1 = require("@nestjs/swagger");
+const inventory_adjustment_schema_1 = require("../../../schemas/inventory-adjustment.schema");
 class CreateInventoryAdjustmentDto {
 }
 exports.CreateInventoryAdjustmentDto = CreateInventoryAdjustmentDto;
@@ -40,6 +41,11 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateInventoryAdjustmentDto.prototype, "adjustedBy", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ enum: inventory_adjustment_schema_1.AdjustmentType }),
+    (0, class_validator_1.IsEnum)(inventory_adjustment_schema_1.AdjustmentType),
+    __metadata("design:type", String)
+], CreateInventoryAdjustmentDto.prototype, "type", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),
     (0, class_validator_1.IsOptional)(),

@@ -44,6 +44,8 @@ let InventoryController = class InventoryController {
         };
     }
     adjust(createAdjustmentDto) {
+        console.log('=== CONTROLLER: Inventory adjustment request ===');
+        console.log('DTO received:', createAdjustmentDto);
         return this.inventoryService.adjustInventory(createAdjustmentDto);
     }
     getAdjustments(outletId, productId) {

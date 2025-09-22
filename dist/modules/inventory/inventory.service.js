@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InventoryService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
 const inventory_adjustment_schema_1 = require("../../schemas/inventory-adjustment.schema");
 const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
 const batch_schema_1 = require("../../schemas/batch.schema");
@@ -28,15 +29,42 @@ let InventoryService = class InventoryService {
         this.productsService = productsService;
     }
     async adjustInventory(createAdjustmentDto) {
+        console.log('=== INVENTORY ADJUSTMENT START ===');
+        console.log('Received DTO:', createAdjustmentDto);
         const product = await this.productsService.findOne(createAdjustmentDto.productId);
+        console.log('Found product:', product?.name, 'Current stock:', product?.stockQuantity);
+        const isValidObjectId = (id) => {
+            return /^[0-9a-fA-F]{24}$/.test(id);
+        };
+        if (!isValidObjectId(createAdjustmentDto.productId)) {
+            throw new Error(`Invalid productId format: ${createAdjustmentDto.productId}`);
+        }
+        if (!isValidObjectId(createAdjustmentDto.outletId)) {
+            throw new Error(`Invalid outletId format: ${createAdjustmentDto.outletId}`);
+        }
+        if (!isValidObjectId(createAdjustmentDto.adjustedBy)) {
+            throw new Error(`Invalid adjustedBy format: ${createAdjustmentDto.adjustedBy}`);
+        }
         const adjustment = new this.inventoryAdjustmentModel({
-            ...createAdjustmentDto,
+            productId: new mongoose_2.Types.ObjectId(createAdjustmentDto.productId),
+            outletId: new mongoose_2.Types.ObjectId(createAdjustmentDto.outletId),
+            adjustedBy: new mongoose_2.Types.ObjectId(createAdjustmentDto.adjustedBy),
+            adjustedQuantity: createAdjustmentDto.adjustedQuantity,
+            reason: createAdjustmentDto.reason,
+            type: createAdjustmentDto.type,
+            notes: createAdjustmentDto.notes,
             previousQuantity: product.stockQuantity,
             newQuantity: product.stockQuantity + createAdjustmentDto.adjustedQuantity,
         });
-        await adjustment.save();
+        console.log('Created adjustment object:', adjustment);
+        const savedAdjustment = await adjustment.save();
+        console.log('Saved adjustment:', savedAdjustment._id);
+        console.log('Updating product stock...');
         await this.productsService.updateStock(createAdjustmentDto.productId, createAdjustmentDto.adjustedQuantity);
-        return adjustment;
+        const updatedProduct = await this.productsService.findOne(createAdjustmentDto.productId);
+        console.log('Updated product stock:', updatedProduct?.stockQuantity);
+        console.log('=== INVENTORY ADJUSTMENT END ===');
+        return savedAdjustment;
     }
     async getAdjustmentHistory(outletId, productId) {
         const filter = {};
@@ -134,6 +162,9 @@ exports.InventoryService = InventoryService = __decorate([
     __param(0, (0, mongoose_1.InjectModel)(inventory_adjustment_schema_1.InventoryAdjustment.name)),
     __param(1, (0, mongoose_1.InjectModel)(pack_variant_schema_1.PackVariant.name)),
     __param(2, (0, mongoose_1.InjectModel)(batch_schema_1.Batch.name)),
-    __metadata("design:paramtypes", [Function, Function, Function, products_service_1.ProductsService])
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
+        products_service_1.ProductsService])
 ], InventoryService);
 //# sourceMappingURL=inventory.service.js.map

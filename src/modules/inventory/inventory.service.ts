@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
-import type { Model } from "mongoose"
+import { Model, Types } from "mongoose"
 import { InventoryAdjustment, type InventoryAdjustmentDocument } from "../../schemas/inventory-adjustment.schema"
 import { PackVariant, type PackVariantDocument } from "../../schemas/pack-variant.schema"
 import { Batch, type BatchDocument } from "../../schemas/batch.schema"
@@ -19,20 +19,53 @@ export class InventoryService {
   ) {}
 
   async adjustInventory(createAdjustmentDto: CreateInventoryAdjustmentDto): Promise<InventoryAdjustment> {
+    console.log('=== INVENTORY ADJUSTMENT START ===')
+    console.log('Received DTO:', createAdjustmentDto)
+    
     const product = await this.productsService.findOne(createAdjustmentDto.productId)
+    console.log('Found product:', product?.name, 'Current stock:', product?.stockQuantity)
+
+    // Validate ObjectId formats before conversion
+    const isValidObjectId = (id: string): boolean => {
+      return /^[0-9a-fA-F]{24}$/.test(id)
+    }
+
+    if (!isValidObjectId(createAdjustmentDto.productId)) {
+      throw new Error(`Invalid productId format: ${createAdjustmentDto.productId}`)
+    }
+    if (!isValidObjectId(createAdjustmentDto.outletId)) {
+      throw new Error(`Invalid outletId format: ${createAdjustmentDto.outletId}`)
+    }
+    if (!isValidObjectId(createAdjustmentDto.adjustedBy)) {
+      throw new Error(`Invalid adjustedBy format: ${createAdjustmentDto.adjustedBy}`)
+    }
 
     const adjustment = new this.inventoryAdjustmentModel({
-      ...createAdjustmentDto,
+      productId: new Types.ObjectId(createAdjustmentDto.productId),
+      outletId: new Types.ObjectId(createAdjustmentDto.outletId),
+      adjustedBy: new Types.ObjectId(createAdjustmentDto.adjustedBy),
+      adjustedQuantity: createAdjustmentDto.adjustedQuantity,
+      reason: createAdjustmentDto.reason,
+      type: createAdjustmentDto.type,
+      notes: createAdjustmentDto.notes,
       previousQuantity: product.stockQuantity,
       newQuantity: product.stockQuantity + createAdjustmentDto.adjustedQuantity,
     })
 
-    await adjustment.save()
+    console.log('Created adjustment object:', adjustment)
+    const savedAdjustment = await adjustment.save()
+    console.log('Saved adjustment:', savedAdjustment._id)
 
     // Update product stock
+    console.log('Updating product stock...')
     await this.productsService.updateStock(createAdjustmentDto.productId, createAdjustmentDto.adjustedQuantity)
+    
+    // Verify the update
+    const updatedProduct = await this.productsService.findOne(createAdjustmentDto.productId)
+    console.log('Updated product stock:', updatedProduct?.stockQuantity)
+    console.log('=== INVENTORY ADJUSTMENT END ===')
 
-    return adjustment
+    return savedAdjustment
   }
 
   async getAdjustmentHistory(outletId?: string, productId?: string): Promise<InventoryAdjustment[]> {

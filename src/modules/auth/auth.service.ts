@@ -224,16 +224,39 @@ export class AuthService {
   }
 
   async findById(id: string) {
-    return this.userModel.findById(id).populate("outletId")
+    try {
+      return await this.userModel.findById(id).populate("outletId").exec()
+    } catch (error) {
+      console.error('Error in findById:', error)
+      // If populate fails, try without populate
+      return await this.userModel.findById(id).exec()
+    }
   }
 
   async getProfile(userId: string) {
-    const user = await this.userModel.findById(userId).populate("outletId").exec()
-    if (!user) {
-      throw new UnauthorizedException("User not found")
-    }
+    try {
+      const user = await this.userModel.findById(userId).populate("outletId").exec()
+      if (!user) {
+        throw new UnauthorizedException("User not found")
+      }
 
-    const { password, ...result } = user.toObject()
-    return result
+      const { password, ...result } = user.toObject()
+      return result
+    } catch (error) {
+      console.error('Error in getProfile:', error)
+      // If populate fails, try without populate
+      try {
+        const user = await this.userModel.findById(userId).exec()
+        if (!user) {
+          throw new UnauthorizedException("User not found")
+        }
+
+        const { password, ...result } = user.toObject()
+        return result
+      } catch (fallbackError) {
+        console.error('Fallback error in getProfile:', fallbackError)
+        throw new UnauthorizedException("User not found")
+      }
+    }
   }
 }

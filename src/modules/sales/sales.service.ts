@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common"
 import { InjectModel } from "@nestjs/mongoose"
 import type { Model } from "mongoose"
+import { Types } from "mongoose"
 import { Sale, type SaleDocument } from "../../schemas/sale.schema"
 import { PackVariant, type PackVariantDocument } from "../../schemas/pack-variant.schema"
 import { ProductsService } from "../products/products.service"
@@ -29,11 +30,15 @@ export class SalesService {
       }
     }
 
-    const sale = new this.saleModel({
+    // Convert string IDs to ObjectIds
+    const saleData = {
       ...createSaleDto,
       receiptNumber,
-    })
+      outletId: new Types.ObjectId(createSaleDto.outletId),
+      cashierId: new Types.ObjectId(createSaleDto.cashierId),
+    }
 
+    const sale = new this.saleModel(saleData)
     return sale.save()
   }
 

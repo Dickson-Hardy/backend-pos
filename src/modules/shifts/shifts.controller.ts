@@ -1,52 +1,84 @@
-import { Controller, Get, Post, Body, Param, UseGuards } from "@nestjs/common"
-import { ApiTags, ApiOperation, ApiBearerAuth } from "@nestjs/swagger"
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard"
+import { 
+  Controller, 
+  Get, 
+  Post, 
+  Put, 
+  Body, 
+  Param, 
+  Query, 
+  UseGuards,
+  Request
+} from '@nestjs/common'
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger'
+import { ShiftsService } from './shifts.service'
+import { CreateShiftDto } from './dto/create-shift.dto'
+import { EndShiftDto } from './dto/end-shift.dto'
+import { CreateExpenseDto } from './dto/create-expense.dto'
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 
-@ApiTags("shifts")
+@ApiTags('shifts')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller("shifts")
+@Controller('shifts')
 export class ShiftsController {
-  @Get()
-  @ApiOperation({ summary: "Get all shifts" })
-  findAll() {
-    // This would need to be implemented with proper shift service
-    return []
+  constructor(private readonly shiftsService: ShiftsService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Start a new shift' })
+  createShift(@Body() createShiftDto: CreateShiftDto, @Request() req) {
+    const { outletId } = req.user
+    return this.shiftsService.createShift(createShiftDto, req.user.id, outletId)
   }
 
-  @Get("stats")
-  @ApiOperation({ summary: "Get shift statistics" })
-  getStats() {
-    // This would need to be implemented with proper shift service
-    return {
-      totalShifts: 0,
-      activeShifts: 0,
-      averageShiftDuration: 0,
-    }
+  @Get('current')
+  @ApiOperation({ summary: 'Get current active shift' })
+  getCurrentShift(@Request() req) {
+    return this.shiftsService.getCurrentShift(req.user.id)
   }
 
-  @Post("start")
-  @ApiOperation({ summary: "Start a new shift" })
-  start(@Body() data: { cashierId: string; openingBalance: number }) {
-    // This would need to be implemented with proper shift service
-    return {
-      id: "shift-id",
-      cashierId: data.cashierId,
-      openingBalance: data.openingBalance,
-      startTime: new Date(),
-      status: "active",
-    }
+  @Get('daily')
+  @ApiOperation({ summary: 'Get daily shifts for outlet' })
+  @ApiQuery({ name: 'date', required: true, description: 'Date in YYYY-MM-DD format' })
+  getDailyShifts(@Query('date') date: string, @Request() req) {
+    const { outletId } = req.user
+    return this.shiftsService.getDailyShifts(outletId, date)
   }
 
-  @Post(":id/end")
-  @ApiOperation({ summary: "End a shift" })
-  end(@Param("id") id: string, @Body() data: { closingBalance: number }) {
-    // This would need to be implemented with proper shift service
-    return {
-      id,
-      closingBalance: data.closingBalance,
-      endTime: new Date(),
-      status: "completed",
-    }
+  @Get('daily/summary')
+  @ApiOperation({ summary: 'Get daily shift summary' })
+  @ApiQuery({ name: 'date', required: true, description: 'Date in YYYY-MM-DD format' })
+  getDailySummary(@Query('date') date: string, @Request() req) {
+    const { outletId } = req.user
+    return this.shiftsService.getDailySummary(outletId, date)
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get shift by ID' })
+  getShiftById(@Param('id') id: string, @Request() req) {
+    return this.shiftsService.getShiftById(id, req.user.id)
+  }
+
+  @Get(':id/report')
+  @ApiOperation({ summary: 'Get detailed shift report' })
+  getShiftReport(@Param('id') id: string, @Request() req) {
+    return this.shiftsService.getShiftReport(id, req.user.id)
+  }
+
+  @Put(':id/end')
+  @ApiOperation({ summary: 'End a shift' })
+  endShift(@Param('id') id: string, @Body() endShiftDto: EndShiftDto, @Request() req) {
+    return this.shiftsService.endShift(id, endShiftDto, req.user.id)
+  }
+
+  @Post(':id/expenses')
+  @ApiOperation({ summary: 'Add expense to shift' })
+  addExpense(@Param('id') id: string, @Body() createExpenseDto: CreateExpenseDto, @Request() req) {
+    return this.shiftsService.addExpense(id, createExpenseDto, req.user.id)
+  }
+
+  @Get(':id/expenses')
+  @ApiOperation({ summary: 'Get shift expenses' })
+  getShiftExpenses(@Param('id') id: string, @Request() req) {
+    return this.shiftsService.getShiftExpenses(id, req.user.id)
   }
 }

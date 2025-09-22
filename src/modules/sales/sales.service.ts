@@ -5,6 +5,7 @@ import { Types } from "mongoose"
 import { Sale, type SaleDocument } from "../../schemas/sale.schema"
 import { PackVariant, type PackVariantDocument } from "../../schemas/pack-variant.schema"
 import { ProductsService } from "../products/products.service"
+import { ShiftsService } from "../shifts/shifts.service"
 import type { CreateSaleDto } from "./dto/create-sale.dto"
 
 @Injectable()
@@ -13,6 +14,7 @@ export class SalesService {
     @InjectModel(Sale.name) private saleModel: Model<SaleDocument>,
     @InjectModel(PackVariant.name) private packVariantModel: Model<PackVariantDocument>,
     private productsService: ProductsService,
+    private shiftsService: ShiftsService,
   ) {}
 
   async create(createSaleDto: CreateSaleDto): Promise<Sale> {
@@ -39,7 +41,20 @@ export class SalesService {
     }
 
     const sale = new this.saleModel(saleData)
-    return sale.save()
+    const savedSale = await sale.save()
+
+    // Update shift sales if cashier has an active shift
+    try {
+      const currentShift = await this.shiftsService.getCurrentShift(createSaleDto.cashierId)
+      if (currentShift) {
+        await this.shiftsService.updateShiftSales(currentShift._id.toString(), createSaleDto.total)
+      }
+    } catch (error) {
+      // Log error but don't fail the sale if shift update fails
+      console.error('Failed to update shift sales:', error)
+    }
+
+    return savedSale
   }
 
   private async processPackSale(productId: string, packInfo: any): Promise<void> {
@@ -70,19 +85,25 @@ export class SalesService {
   }
 
   async findAll(outletId?: string, startDate?: Date, endDate?: Date): Promise<Sale[]> {
-    const filter: any = {}
+    try {
+      const filter: any = {}
 
-    if (outletId) {
-      filter.outletId = outletId
+      if (outletId) {
+        filter.outletId = new Types.ObjectId(outletId)
+      }
+
+      if (startDate || endDate) {
+        filter.saleDate = {}
+        if (startDate) filter.saleDate.$gte = startDate
+        if (endDate) filter.saleDate.$lte = endDate
+      }
+
+      const sales = await this.saleModel.find(filter).populate("outletId").populate("cashierId").sort({ saleDate: -1 }).exec()
+      return sales
+    } catch (error) {
+      console.error('Error in findAll sales:', error)
+      throw new BadRequestException('Failed to fetch sales data')
     }
-
-    if (startDate || endDate) {
-      filter.saleDate = {}
-      if (startDate) filter.saleDate.$gte = startDate
-      if (endDate) filter.saleDate.$lte = endDate
-    }
-
-    return this.saleModel.find(filter).populate("outletId").populate("cashierId").sort({ saleDate: -1 }).exec()
   }
 
   async findOne(id: string): Promise<Sale> {
@@ -96,30 +117,35 @@ export class SalesService {
   }
 
   async getDailySales(outletId?: string): Promise<any> {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    try {
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
 
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
+      const tomorrow = new Date(today)
+      tomorrow.setDate(tomorrow.getDate() + 1)
 
-    const filter: any = {
-      saleDate: { $gte: today, $lt: tomorrow },
-      status: "completed",
-    }
+      const filter: any = {
+        saleDate: { $gte: today, $lt: tomorrow },
+        status: "completed",
+      }
 
-    if (outletId) {
-      filter.outletId = outletId
-    }
+      if (outletId) {
+        filter.outletId = new Types.ObjectId(outletId)
+      }
 
-    const sales = await this.saleModel.find(filter).exec()
+      const sales = await this.saleModel.find(filter).exec()
 
-    const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0)
-    const totalTransactions = sales.length
+      const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0)
+      const totalTransactions = sales.length
 
-    return {
-      totalSales,
-      totalTransactions,
-      sales,
+      return {
+        totalSales,
+        totalTransactions,
+        sales,
+      }
+    } catch (error) {
+      console.error('Error in getDailySales:', error)
+      throw new BadRequestException('Failed to fetch daily sales data')
     }
   }
 

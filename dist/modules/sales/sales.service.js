@@ -15,14 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.SalesService = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
 const sale_schema_1 = require("../../schemas/sale.schema");
 const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
 const products_service_1 = require("../products/products.service");
+const shifts_service_1 = require("../shifts/shifts.service");
 let SalesService = class SalesService {
-    constructor(saleModel, packVariantModel, productsService) {
+    constructor(saleModel, packVariantModel, productsService, shiftsService) {
         this.saleModel = saleModel;
         this.packVariantModel = packVariantModel;
         this.productsService = productsService;
+        this.shiftsService = shiftsService;
     }
     async create(createSaleDto) {
         const receiptNumber = await this.generateReceiptNumber();
@@ -34,11 +37,24 @@ let SalesService = class SalesService {
                 await this.productsService.updateStock(item.productId.toString(), -item.quantity);
             }
         }
-        const sale = new this.saleModel({
+        const saleData = {
             ...createSaleDto,
             receiptNumber,
-        });
-        return sale.save();
+            outletId: new mongoose_2.Types.ObjectId(createSaleDto.outletId),
+            cashierId: new mongoose_2.Types.ObjectId(createSaleDto.cashierId),
+        };
+        const sale = new this.saleModel(saleData);
+        const savedSale = await sale.save();
+        try {
+            const currentShift = await this.shiftsService.getCurrentShift(createSaleDto.cashierId);
+            if (currentShift) {
+                await this.shiftsService.updateShiftSales(currentShift._id.toString(), createSaleDto.total);
+            }
+        }
+        catch (error) {
+            console.error('Failed to update shift sales:', error);
+        }
+        return savedSale;
     }
     async processPackSale(productId, packInfo) {
         if (packInfo.saleType === 'pack' && packInfo.packVariantId) {
@@ -121,6 +137,7 @@ exports.SalesService = SalesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(sale_schema_1.Sale.name)),
     __param(1, (0, mongoose_1.InjectModel)(pack_variant_schema_1.PackVariant.name)),
-    __metadata("design:paramtypes", [Function, Function, products_service_1.ProductsService])
+    __metadata("design:paramtypes", [Function, Function, products_service_1.ProductsService,
+        shifts_service_1.ShiftsService])
 ], SalesService);
 //# sourceMappingURL=sales.service.js.map

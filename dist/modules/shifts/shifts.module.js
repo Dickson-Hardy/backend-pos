@@ -8,15 +8,25 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShiftsModule = void 0;
 const common_1 = require("@nestjs/common");
+const mongoose_1 = require("@nestjs/mongoose");
 const shifts_controller_1 = require("./shifts.controller");
+const shifts_service_1 = require("./shifts.service");
+const shift_schema_1 = require("../../schemas/shift.schema");
+const expense_schema_1 = require("../../schemas/expense.schema");
 let ShiftsModule = class ShiftsModule {
 };
 exports.ShiftsModule = ShiftsModule;
 exports.ShiftsModule = ShiftsModule = __decorate([
     (0, common_1.Module)({
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: shift_schema_1.Shift.name, schema: shift_schema_1.ShiftSchema },
+                { name: expense_schema_1.Expense.name, schema: expense_schema_1.ExpenseSchema },
+            ]),
+        ],
         controllers: [shifts_controller_1.ShiftsController],
-        providers: [],
-        exports: [],
+        providers: [shifts_service_1.ShiftsService],
+        exports: [shifts_service_1.ShiftsService],
     })
 ], ShiftsModule);
 //# sourceMappingURL=shifts.module.js.map

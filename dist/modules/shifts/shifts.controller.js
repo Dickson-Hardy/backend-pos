@@ -15,72 +15,136 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShiftsController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
+const shifts_service_1 = require("./shifts.service");
+const create_shift_dto_1 = require("./dto/create-shift.dto");
+const end_shift_dto_1 = require("./dto/end-shift.dto");
+const create_expense_dto_1 = require("./dto/create-expense.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let ShiftsController = class ShiftsController {
-    findAll() {
-        return [];
+    constructor(shiftsService) {
+        this.shiftsService = shiftsService;
     }
-    getStats() {
-        return {
-            totalShifts: 0,
-            activeShifts: 0,
-            averageShiftDuration: 0,
-        };
+    createShift(createShiftDto, req) {
+        const { outletId } = req.user;
+        return this.shiftsService.createShift(createShiftDto, req.user.id, outletId);
     }
-    start(data) {
-        return {
-            id: "shift-id",
-            cashierId: data.cashierId,
-            openingBalance: data.openingBalance,
-            startTime: new Date(),
-            status: "active",
-        };
+    getCurrentShift(req) {
+        return this.shiftsService.getCurrentShift(req.user.id);
     }
-    end(id, data) {
-        return {
-            id,
-            closingBalance: data.closingBalance,
-            endTime: new Date(),
-            status: "completed",
-        };
+    getDailyShifts(date, req) {
+        const { outletId } = req.user;
+        return this.shiftsService.getDailyShifts(outletId, date);
+    }
+    getDailySummary(date, req) {
+        const { outletId } = req.user;
+        return this.shiftsService.getDailySummary(outletId, date);
+    }
+    getShiftById(id, req) {
+        return this.shiftsService.getShiftById(id, req.user.id);
+    }
+    getShiftReport(id, req) {
+        return this.shiftsService.getShiftReport(id, req.user.id);
+    }
+    endShift(id, endShiftDto, req) {
+        return this.shiftsService.endShift(id, endShiftDto, req.user.id);
+    }
+    addExpense(id, createExpenseDto, req) {
+        return this.shiftsService.addExpense(id, createExpenseDto, req.user.id);
+    }
+    getShiftExpenses(id, req) {
+        return this.shiftsService.getShiftExpenses(id, req.user.id);
     }
 };
 exports.ShiftsController = ShiftsController;
 __decorate([
-    (0, common_1.Get)(),
-    (0, swagger_1.ApiOperation)({ summary: "Get all shifts" }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], ShiftsController.prototype, "findAll", null);
-__decorate([
-    (0, common_1.Get)("stats"),
-    (0, swagger_1.ApiOperation)({ summary: "Get shift statistics" }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], ShiftsController.prototype, "getStats", null);
-__decorate([
-    (0, common_1.Post)("start"),
-    (0, swagger_1.ApiOperation)({ summary: "Start a new shift" }),
+    (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Start a new shift' }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [create_shift_dto_1.CreateShiftDto, Object]),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "createShift", null);
+__decorate([
+    (0, common_1.Get)('current'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get current active shift' }),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
-], ShiftsController.prototype, "start", null);
+], ShiftsController.prototype, "getCurrentShift", null);
 __decorate([
-    (0, common_1.Post)(":id/end"),
-    (0, swagger_1.ApiOperation)({ summary: "End a shift" }),
-    __param(0, (0, common_1.Param)("id")),
-    __param(1, (0, common_1.Body)()),
+    (0, common_1.Get)('daily'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get daily shifts for outlet' }),
+    (0, swagger_1.ApiQuery)({ name: 'date', required: true, description: 'Date in YYYY-MM-DD format' }),
+    __param(0, (0, common_1.Query)('date')),
+    __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
-], ShiftsController.prototype, "end", null);
+], ShiftsController.prototype, "getDailyShifts", null);
+__decorate([
+    (0, common_1.Get)('daily/summary'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get daily shift summary' }),
+    (0, swagger_1.ApiQuery)({ name: 'date', required: true, description: 'Date in YYYY-MM-DD format' }),
+    __param(0, (0, common_1.Query)('date')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "getDailySummary", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get shift by ID' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "getShiftById", null);
+__decorate([
+    (0, common_1.Get)(':id/report'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get detailed shift report' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "getShiftReport", null);
+__decorate([
+    (0, common_1.Put)(':id/end'),
+    (0, swagger_1.ApiOperation)({ summary: 'End a shift' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, end_shift_dto_1.EndShiftDto, Object]),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "endShift", null);
+__decorate([
+    (0, common_1.Post)(':id/expenses'),
+    (0, swagger_1.ApiOperation)({ summary: 'Add expense to shift' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, create_expense_dto_1.CreateExpenseDto, Object]),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "addExpense", null);
+__decorate([
+    (0, common_1.Get)(':id/expenses'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get shift expenses' }),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "getShiftExpenses", null);
 exports.ShiftsController = ShiftsController = __decorate([
-    (0, swagger_1.ApiTags)("shifts"),
+    (0, swagger_1.ApiTags)('shifts'),
     (0, swagger_1.ApiBearerAuth)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Controller)("shifts")
+    (0, common_1.Controller)('shifts'),
+    __metadata("design:paramtypes", [shifts_service_1.ShiftsService])
 ], ShiftsController);
 //# sourceMappingURL=shifts.controller.js.map

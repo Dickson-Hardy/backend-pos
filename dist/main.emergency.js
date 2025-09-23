@@ -30,7 +30,8 @@ async function bootstrap() {
                 'X-Requested-With',
                 'Accept',
                 'Origin',
-                'Cache-Control'
+                'Cache-Control',
+                'x-auth-token'
             ],
             optionsSuccessStatus: 200
         });

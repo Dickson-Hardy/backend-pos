@@ -39,7 +39,8 @@ async function bootstrap() {
         'Authorization', 
         'X-Requested-With',
         'Accept',
-        'Origin'
+        'Origin',
+        'x-auth-token'
       ],
       optionsSuccessStatus: 200
     })

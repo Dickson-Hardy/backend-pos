@@ -75,19 +75,32 @@ let SalesService = class SalesService {
             await this.productsService.updateStock(productId, -packInfo.effectiveUnitCount);
         }
     }
-    async findAll(outletId, startDate, endDate) {
-        const filter = {};
-        if (outletId) {
-            filter.outletId = outletId;
+    async findAll(outletId, startDate, endDate, cashierId, status) {
+        try {
+            const filter = {};
+            if (outletId && mongoose_2.Types.ObjectId.isValid(outletId)) {
+                filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+            }
+            if (cashierId && mongoose_2.Types.ObjectId.isValid(cashierId)) {
+                filter.cashierId = new mongoose_2.Types.ObjectId(cashierId);
+            }
+            if (status && status.trim() !== '') {
+                filter.status = status;
+            }
+            if (startDate || endDate) {
+                filter.saleDate = {};
+                if (startDate)
+                    filter.saleDate.$gte = startDate;
+                if (endDate)
+                    filter.saleDate.$lte = endDate;
+            }
+            const sales = await this.saleModel.find(filter).populate("outletId").populate("cashierId").sort({ saleDate: -1 }).exec();
+            return sales;
         }
-        if (startDate || endDate) {
-            filter.saleDate = {};
-            if (startDate)
-                filter.saleDate.$gte = startDate;
-            if (endDate)
-                filter.saleDate.$lte = endDate;
+        catch (error) {
+            console.error('Error in findAll sales:', error);
+            throw new common_1.BadRequestException('Failed to fetch sales data');
         }
-        return this.saleModel.find(filter).populate("outletId").populate("cashierId").sort({ saleDate: -1 }).exec();
     }
     async findOne(id) {
         const sale = await this.saleModel.findById(id).populate("outletId").populate("cashierId").exec();
@@ -97,25 +110,31 @@ let SalesService = class SalesService {
         return sale;
     }
     async getDailySales(outletId) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tomorrow = new Date(today);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const filter = {
-            saleDate: { $gte: today, $lt: tomorrow },
-            status: "completed",
-        };
-        if (outletId) {
-            filter.outletId = outletId;
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const filter = {
+                saleDate: { $gte: today, $lt: tomorrow },
+                status: "completed",
+            };
+            if (outletId) {
+                filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+            }
+            const sales = await this.saleModel.find(filter).exec();
+            const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0);
+            const totalTransactions = sales.length;
+            return {
+                totalSales,
+                totalTransactions,
+                sales,
+            };
         }
-        const sales = await this.saleModel.find(filter).exec();
-        const totalSales = sales.reduce((sum, sale) => sum + sale.total, 0);
-        const totalTransactions = sales.length;
-        return {
-            totalSales,
-            totalTransactions,
-            sales,
-        };
+        catch (error) {
+            console.error('Error in getDailySales:', error);
+            throw new common_1.BadRequestException('Failed to fetch daily sales data');
+        }
     }
     async generateReceiptNumber() {
         const today = new Date();

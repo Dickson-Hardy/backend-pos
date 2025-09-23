@@ -12,7 +12,7 @@ export declare class SalesService {
     constructor(saleModel: Model<SaleDocument>, packVariantModel: Model<PackVariantDocument>, productsService: ProductsService, shiftsService: ShiftsService);
     create(createSaleDto: CreateSaleDto): Promise<Sale>;
     private processPackSale;
-    findAll(outletId?: string, startDate?: Date, endDate?: Date): Promise<Sale[]>;
+    findAll(outletId?: string, startDate?: Date, endDate?: Date, cashierId?: string, status?: string): Promise<Sale[]>;
     findOne(id: string): Promise<Sale>;
     getDailySales(outletId?: string): Promise<any>;
     private generateReceiptNumber;

@@ -26,7 +26,7 @@ exports.SalesModule = SalesModule = __decorate([
                 { name: pack_variant_schema_1.PackVariant.name, schema: pack_variant_schema_1.PackVariantSchema },
             ]),
             products_module_1.ProductsModule,
-            shifts_module_1.ShiftsModule
+            (0, common_1.forwardRef)(() => shifts_module_1.ShiftsModule)
         ],
         controllers: [sales_controller_1.SalesController],
         providers: [sales_service_1.SalesService],

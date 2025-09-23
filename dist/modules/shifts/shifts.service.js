@@ -189,6 +189,40 @@ let ShiftsService = class ShiftsService {
             }))
         };
     }
+    async getStats() {
+        try {
+            const activeShifts = await this.shiftModel.countDocuments({ status: 'active' });
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(today);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const totalShiftsToday = await this.shiftModel.countDocuments({
+                startTime: { $gte: today, $lt: tomorrow }
+            });
+            const completedShifts = await this.shiftModel.find({
+                status: 'closed',
+                endTime: { $exists: true }
+            }).select('startTime endTime');
+            let averageShiftDuration = 0;
+            if (completedShifts.length > 0) {
+                const totalDuration = completedShifts.reduce((sum, shift) => {
+                    const start = new Date(shift.startTime);
+                    const end = new Date(shift.endTime);
+                    return sum + (end.getTime() - start.getTime());
+                }, 0);
+                averageShiftDuration = totalDuration / completedShifts.length / (1000 * 60 * 60);
+            }
+            return {
+                activeShifts,
+                totalShiftsToday,
+                averageShiftDuration: Math.round(averageShiftDuration * 100) / 100
+            };
+        }
+        catch (error) {
+            console.error('Error getting shift stats:', error);
+            throw new common_1.BadRequestException('Failed to fetch shift statistics');
+        }
+    }
 };
 exports.ShiftsService = ShiftsService;
 exports.ShiftsService = ShiftsService = __decorate([

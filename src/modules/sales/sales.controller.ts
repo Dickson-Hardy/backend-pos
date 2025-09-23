@@ -22,14 +22,18 @@ export class SalesController {
   @ApiQuery({ name: "outletId", required: false })
   @ApiQuery({ name: "startDate", required: false })
   @ApiQuery({ name: "endDate", required: false })
+  @ApiQuery({ name: "cashierId", required: false })
+  @ApiQuery({ name: "status", required: false })
   findAll(
     @Query("outletId") outletId?: string,
     @Query("startDate") startDate?: string,
     @Query("endDate") endDate?: string,
+    @Query("cashierId") cashierId?: string,
+    @Query("status") status?: string,
   ) {
     const start = startDate ? new Date(startDate) : undefined
     const end = endDate ? new Date(endDate) : undefined
-    return this.salesService.findAll(outletId, start, end)
+    return this.salesService.findAll(outletId, start, end, cashierId, status)
   }
 
   @Get("daily")

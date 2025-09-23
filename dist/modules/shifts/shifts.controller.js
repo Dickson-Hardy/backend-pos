@@ -54,6 +54,9 @@ let ShiftsController = class ShiftsController {
     getShiftExpenses(id, req) {
         return this.shiftsService.getShiftExpenses(id, req.user.id);
     }
+    getStats() {
+        return this.shiftsService.getStats();
+    }
 };
 exports.ShiftsController = ShiftsController;
 __decorate([
@@ -140,6 +143,13 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ShiftsController.prototype, "getShiftExpenses", null);
+__decorate([
+    (0, common_1.Get)('stats'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get shift statistics' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "getStats", null);
 exports.ShiftsController = ShiftsController = __decorate([
     (0, swagger_1.ApiTags)('shifts'),
     (0, swagger_1.ApiBearerAuth)(),

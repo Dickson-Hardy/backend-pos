@@ -65,4 +65,9 @@ export declare class ShiftsService {
         shiftCount: number;
         date: string;
     }>;
+    getStats(): Promise<{
+        activeShifts: number;
+        totalShiftsToday: number;
+        averageShiftDuration: number;
+    }>;
 }

@@ -84,12 +84,20 @@ export class SalesService {
     }
   }
 
-  async findAll(outletId?: string, startDate?: Date, endDate?: Date): Promise<Sale[]> {
+  async findAll(outletId?: string, startDate?: Date, endDate?: Date, cashierId?: string, status?: string): Promise<Sale[]> {
     try {
       const filter: any = {}
 
-      if (outletId) {
+      if (outletId && Types.ObjectId.isValid(outletId)) {
         filter.outletId = new Types.ObjectId(outletId)
+      }
+
+      if (cashierId && Types.ObjectId.isValid(cashierId)) {
+        filter.cashierId = new Types.ObjectId(cashierId)
+      }
+
+      if (status && status.trim() !== '') {
+        filter.status = status
       }
 
       if (startDate || endDate) {

@@ -25,10 +25,10 @@ let SalesController = class SalesController {
     create(createSaleDto) {
         return this.salesService.create(createSaleDto);
     }
-    findAll(outletId, startDate, endDate) {
+    findAll(outletId, startDate, endDate, cashierId, status) {
         const start = startDate ? new Date(startDate) : undefined;
         const end = endDate ? new Date(endDate) : undefined;
-        return this.salesService.findAll(outletId, start, end);
+        return this.salesService.findAll(outletId, start, end, cashierId, status);
     }
     getDailySales(outletId) {
         return this.salesService.getDailySales(outletId);
@@ -52,11 +52,15 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: "outletId", required: false }),
     (0, swagger_1.ApiQuery)({ name: "startDate", required: false }),
     (0, swagger_1.ApiQuery)({ name: "endDate", required: false }),
+    (0, swagger_1.ApiQuery)({ name: "cashierId", required: false }),
+    (0, swagger_1.ApiQuery)({ name: "status", required: false }),
     __param(0, (0, common_1.Query)("outletId")),
     __param(1, (0, common_1.Query)("startDate")),
     __param(2, (0, common_1.Query)("endDate")),
+    __param(3, (0, common_1.Query)("cashierId")),
+    __param(4, (0, common_1.Query)("status")),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, String, String]),
     __metadata("design:returntype", void 0)
 ], SalesController.prototype, "findAll", null);
 __decorate([

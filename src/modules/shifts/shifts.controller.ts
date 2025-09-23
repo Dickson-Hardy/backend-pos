@@ -81,4 +81,10 @@ export class ShiftsController {
   getShiftExpenses(@Param('id') id: string, @Request() req) {
     return this.shiftsService.getShiftExpenses(id, req.user.id)
   }
+
+  @Get('stats')
+  @ApiOperation({ summary: 'Get shift statistics' })
+  getStats() {
+    return this.shiftsService.getStats()
+  }
 }

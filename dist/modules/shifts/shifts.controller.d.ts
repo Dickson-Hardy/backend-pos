@@ -59,4 +59,9 @@ export declare class ShiftsController {
     getShiftExpenses(id: string, req: any): Promise<(import("mongoose").Document<unknown, {}, import("../../schemas/expense.schema").ExpenseDocument> & import("../../schemas/expense.schema").Expense & import("mongoose").Document<any, any, any> & {
         _id: import("mongoose").Types.ObjectId;
     })[]>;
+    getStats(): Promise<{
+        activeShifts: number;
+        totalShiftsToday: number;
+        averageShiftDuration: number;
+    }>;
 }

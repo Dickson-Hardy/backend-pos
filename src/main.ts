@@ -28,8 +28,8 @@ async function bootstrap() {
     console.log('� Configuring PRODUCTION CORS')
     app.enableCors({
       origin: [
-        'https://frontend-pos-gold.vercel.app',
-        'https://frontend-pos-gold.vercel.app',
+        'https://frontend-poz.vercel.app',
+        'https://frontend-poz.vercel.app/',
         'http://localhost:3000'
       ],
       credentials: true,

@@ -23,11 +23,15 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 3000, description: "Price for the entire pack" }),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1, { message: "Pack price must be at least 1 Le" }),
+    (0, class_validator_1.Max)(1500, { message: "Pack price cannot exceed 1500 Le" }),
     __metadata("design:type", Number)
 ], CreatePackVariantDto.prototype, "packPrice", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 1000, description: "Price per individual unit in this pack" }),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1, { message: "Unit price must be at least 1 Le" }),
+    (0, class_validator_1.Max)(1500, { message: "Unit price cannot exceed 1500 Le" }),
     __metadata("design:type", Number)
 ], CreatePackVariantDto.prototype, "unitPrice", void 0);
 __decorate([
@@ -54,12 +58,16 @@ __decorate([
     (0, swagger_1.ApiProperty)({ example: 3000, description: "Price for the entire pack", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1, { message: "Pack price must be at least 1 Le" }),
+    (0, class_validator_1.Max)(1500, { message: "Pack price cannot exceed 1500 Le" }),
     __metadata("design:type", Number)
 ], UpdatePackVariantDto.prototype, "packPrice", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 1000, description: "Price per individual unit in this pack", required: false }),
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1, { message: "Unit price must be at least 1 Le" }),
+    (0, class_validator_1.Max)(1500, { message: "Unit price cannot exceed 1500 Le" }),
     __metadata("design:type", Number)
 ], UpdatePackVariantDto.prototype, "unitPrice", void 0);
 __decorate([

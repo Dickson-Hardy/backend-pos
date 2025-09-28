@@ -35,7 +35,8 @@ __decorate([
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "barcode", void 0);
 __decorate([
-    (0, swagger_1.ApiProperty)({ example: "Pain relief medication" }),
+    (0, swagger_1.ApiProperty)({ example: "Pain relief medication", required: false }),
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], CreateProductDto.prototype, "description", void 0);
@@ -67,11 +68,15 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 10.5 }),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1, { message: "Cost price must be at least 1 Le" }),
+    (0, class_validator_1.Max)(1500, { message: "Cost price cannot exceed 1500 Le" }),
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "costPrice", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ example: 15.75 }),
     (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.Min)(1, { message: "Selling price must be at least 1 Le" }),
+    (0, class_validator_1.Max)(1500, { message: "Selling price cannot exceed 1500 Le" }),
     __metadata("design:type", Number)
 ], CreateProductDto.prototype, "sellingPrice", void 0);
 __decorate([

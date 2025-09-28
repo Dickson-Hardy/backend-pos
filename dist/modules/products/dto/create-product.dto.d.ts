@@ -4,7 +4,7 @@ export declare class CreateProductDto {
     name: string;
     sku: string;
     barcode?: string;
-    description: string;
+    description?: string;
     category: ProductCategory;
     manufacturer: string;
     genericName: string;

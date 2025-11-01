@@ -4,6 +4,7 @@ import type { Model } from "mongoose"
 import { Product, type ProductDocument } from "../../schemas/product.schema"
 import { Batch, type BatchDocument } from "../../schemas/batch.schema"
 import { PackVariant, type PackVariantDocument } from "../../schemas/pack-variant.schema"
+import { WebsocketGateway } from "../websocket/websocket.gateway"
 import type { CreateProductDto } from "./dto/create-product.dto"
 import type { UpdateProductDto } from "./dto/update-product.dto"
 
@@ -13,6 +14,7 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
     @InjectModel(Batch.name) private batchModel: Model<BatchDocument>,
     @InjectModel(PackVariant.name) private packVariantModel: Model<PackVariantDocument>,
+    private websocketGateway: WebsocketGateway,
   ) {}
 
   async create(createProductDto: CreateProductDto): Promise<Product> {
@@ -132,6 +134,13 @@ export class ProductsService {
     if (!product) {
       throw new NotFoundException("Product not found")
     }
+    
+    // Emit WebSocket event
+    this.websocketGateway.emitToOutlet(product.outletId.toString(), 'inventory:updated', {
+      productId: product._id,
+      stockQuantity: product.stockQuantity
+    })
+    
     return product
   }
   

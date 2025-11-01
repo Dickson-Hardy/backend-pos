@@ -33,6 +33,31 @@ let SalesController = class SalesController {
     getDailySales(outletId) {
         return this.salesService.getDailySales(outletId);
     }
+    search(query, outletId) {
+        return this.salesService.searchSales(query, outletId);
+    }
+    getHourlySales(outletId, date) {
+        const targetDate = date ? new Date(date) : undefined;
+        return this.salesService.getSalesByHour(outletId, targetDate);
+    }
+    getSalesByCategory(outletId, startDate, endDate) {
+        const start = startDate ? new Date(startDate) : undefined;
+        const end = endDate ? new Date(endDate) : undefined;
+        return this.salesService.getSalesByCategory(outletId, start, end);
+    }
+    getCashierPerformance(outletId, startDate, endDate) {
+        const start = startDate ? new Date(startDate) : undefined;
+        const end = endDate ? new Date(endDate) : undefined;
+        return this.salesService.getCashierPerformance(outletId, start, end);
+    }
+    getPaymentMethods(outletId, startDate, endDate) {
+        const start = startDate ? new Date(startDate) : undefined;
+        const end = endDate ? new Date(endDate) : undefined;
+        return this.salesService.getPaymentMethodBreakdown(outletId, start, end);
+    }
+    getSalesComparison(outletId) {
+        return this.salesService.getSalesComparison(outletId);
+    }
     findOne(id) {
         return this.salesService.findOne(id);
     }
@@ -72,6 +97,62 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], SalesController.prototype, "getDailySales", null);
+__decorate([
+    (0, common_1.Get)("search/:query"),
+    (0, swagger_1.ApiOperation)({ summary: "Search sales" }),
+    __param(0, (0, common_1.Param)("query")),
+    __param(1, (0, common_1.Query)("outletId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], SalesController.prototype, "search", null);
+__decorate([
+    (0, common_1.Get)("analytics/hourly"),
+    (0, swagger_1.ApiOperation)({ summary: "Get hourly sales breakdown" }),
+    __param(0, (0, common_1.Query)("outletId")),
+    __param(1, (0, common_1.Query)("date")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:returntype", void 0)
+], SalesController.prototype, "getHourlySales", null);
+__decorate([
+    (0, common_1.Get)("analytics/by-category"),
+    (0, swagger_1.ApiOperation)({ summary: "Get sales by category" }),
+    __param(0, (0, common_1.Query)("outletId")),
+    __param(1, (0, common_1.Query)("startDate")),
+    __param(2, (0, common_1.Query)("endDate")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], SalesController.prototype, "getSalesByCategory", null);
+__decorate([
+    (0, common_1.Get)("analytics/cashier-performance"),
+    (0, swagger_1.ApiOperation)({ summary: "Get cashier performance metrics" }),
+    __param(0, (0, common_1.Query)("outletId")),
+    __param(1, (0, common_1.Query)("startDate")),
+    __param(2, (0, common_1.Query)("endDate")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], SalesController.prototype, "getCashierPerformance", null);
+__decorate([
+    (0, common_1.Get)("analytics/payment-methods"),
+    (0, swagger_1.ApiOperation)({ summary: "Get payment method breakdown" }),
+    __param(0, (0, common_1.Query)("outletId")),
+    __param(1, (0, common_1.Query)("startDate")),
+    __param(2, (0, common_1.Query)("endDate")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], SalesController.prototype, "getPaymentMethods", null);
+__decorate([
+    (0, common_1.Get)("analytics/comparison"),
+    (0, swagger_1.ApiOperation)({ summary: "Get sales comparison (today vs yesterday, this week vs last week)" }),
+    __param(0, (0, common_1.Query)("outletId")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], SalesController.prototype, "getSalesComparison", null);
 __decorate([
     (0, common_1.Get)(":id"),
     (0, swagger_1.ApiOperation)({ summary: "Get sale by ID" }),

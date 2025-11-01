@@ -30,6 +30,12 @@ export class ShiftsController {
     return this.shiftsService.createShift(createShiftDto, req.user.id, outletId)
   }
 
+  @Get('stats')
+  @ApiOperation({ summary: 'Get shift statistics' })
+  getStats() {
+    return this.shiftsService.getStats()
+  }
+
   @Get('current')
   @ApiOperation({ summary: 'Get current active shift' })
   getCurrentShift(@Request() req) {
@@ -80,11 +86,5 @@ export class ShiftsController {
   @ApiOperation({ summary: 'Get shift expenses' })
   getShiftExpenses(@Param('id') id: string, @Request() req) {
     return this.shiftsService.getShiftExpenses(id, req.user.id)
-  }
-
-  @Get('stats')
-  @ApiOperation({ summary: 'Get shift statistics' })
-  getStats() {
-    return this.shiftsService.getStats()
   }
 }

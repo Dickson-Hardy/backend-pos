@@ -14,6 +14,7 @@ const products_service_1 = require("./products.service");
 const product_schema_1 = require("../../schemas/product.schema");
 const batch_schema_1 = require("../../schemas/batch.schema");
 const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
+const websocket_module_1 = require("../websocket/websocket.module");
 let ProductsModule = class ProductsModule {
 };
 exports.ProductsModule = ProductsModule;
@@ -25,6 +26,7 @@ exports.ProductsModule = ProductsModule = __decorate([
                 { name: batch_schema_1.Batch.name, schema: batch_schema_1.BatchSchema },
                 { name: pack_variant_schema_1.PackVariant.name, schema: pack_variant_schema_1.PackVariantSchema },
             ]),
+            websocket_module_1.WebsocketModule
         ],
         controllers: [products_controller_1.ProductsController],
         providers: [products_service_1.ProductsService],

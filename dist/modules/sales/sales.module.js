@@ -15,6 +15,7 @@ const sale_schema_1 = require("../../schemas/sale.schema");
 const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
 const products_module_1 = require("../products/products.module");
 const shifts_module_1 = require("../shifts/shifts.module");
+const websocket_module_1 = require("../websocket/websocket.module");
 let SalesModule = class SalesModule {
 };
 exports.SalesModule = SalesModule;
@@ -26,7 +27,8 @@ exports.SalesModule = SalesModule = __decorate([
                 { name: pack_variant_schema_1.PackVariant.name, schema: pack_variant_schema_1.PackVariantSchema },
             ]),
             products_module_1.ProductsModule,
-            (0, common_1.forwardRef)(() => shifts_module_1.ShiftsModule)
+            (0, common_1.forwardRef)(() => shifts_module_1.ShiftsModule),
+            websocket_module_1.WebsocketModule
         ],
         controllers: [sales_controller_1.SalesController],
         providers: [sales_service_1.SalesService],

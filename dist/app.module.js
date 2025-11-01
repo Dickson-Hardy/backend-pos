@@ -25,6 +25,11 @@ const health_module_1 = require("./modules/health/health.module");
 const receipt_templates_module_1 = require("./modules/receipt-templates/receipt-templates.module");
 const thermal_printer_module_1 = require("./modules/thermal-printer/thermal-printer.module");
 const reconciliation_module_1 = require("./modules/reconciliation/reconciliation.module");
+const suppliers_module_1 = require("./modules/suppliers/suppliers.module");
+const supplier_payments_module_1 = require("./modules/supplier-payments/supplier-payments.module");
+const returns_module_1 = require("./modules/returns/returns.module");
+const product_transfers_module_1 = require("./modules/product-transfers/product-transfers.module");
+const websocket_module_1 = require("./modules/websocket/websocket.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -50,6 +55,11 @@ exports.AppModule = AppModule = __decorate([
             receipt_templates_module_1.ReceiptTemplatesModule,
             thermal_printer_module_1.ThermalPrinterModule,
             reconciliation_module_1.ReconciliationModule,
+            suppliers_module_1.SuppliersModule,
+            supplier_payments_module_1.SupplierPaymentsModule,
+            returns_module_1.ReturnsModule,
+            product_transfers_module_1.ProductTransfersModule,
+            websocket_module_1.WebsocketModule,
         ],
     })
 ], AppModule);

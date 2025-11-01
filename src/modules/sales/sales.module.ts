@@ -6,6 +6,7 @@ import { Sale, SaleSchema } from "../../schemas/sale.schema"
 import { PackVariant, PackVariantSchema } from "../../schemas/pack-variant.schema"
 import { ProductsModule } from "../products/products.module"
 import { ShiftsModule } from "../shifts/shifts.module"
+import { WebsocketModule } from "../websocket/websocket.module"
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { ShiftsModule } from "../shifts/shifts.module"
       { name: PackVariant.name, schema: PackVariantSchema },
     ]), 
     ProductsModule,
-    forwardRef(() => ShiftsModule)
+    forwardRef(() => ShiftsModule),
+    WebsocketModule
   ],
   controllers: [SalesController],
   providers: [SalesService],

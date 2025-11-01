@@ -16,6 +16,11 @@ import { HealthModule } from "./modules/health/health.module"
 import { ReceiptTemplatesModule } from "./modules/receipt-templates/receipt-templates.module"
 import { ThermalPrinterModule } from "./modules/thermal-printer/thermal-printer.module"
 import { ReconciliationModule } from "./modules/reconciliation/reconciliation.module"
+import { SuppliersModule } from "./modules/suppliers/suppliers.module"
+import { SupplierPaymentsModule } from "./modules/supplier-payments/supplier-payments.module"
+import { ReturnsModule } from "./modules/returns/returns.module"
+import { ProductTransfersModule } from "./modules/product-transfers/product-transfers.module"
+import { WebsocketModule } from "./modules/websocket/websocket.module"
 
 @Module({
   imports: [
@@ -38,6 +43,11 @@ import { ReconciliationModule } from "./modules/reconciliation/reconciliation.mo
     ReceiptTemplatesModule,
     ThermalPrinterModule,
     ReconciliationModule,
+    SuppliersModule,
+    SupplierPaymentsModule,
+    ReturnsModule,
+    ProductTransfersModule,
+    WebsocketModule,
   ],
 })
 export class AppModule {}

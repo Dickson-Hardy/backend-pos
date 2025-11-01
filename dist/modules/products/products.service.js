@@ -18,11 +18,13 @@ const mongoose_1 = require("@nestjs/mongoose");
 const product_schema_1 = require("../../schemas/product.schema");
 const batch_schema_1 = require("../../schemas/batch.schema");
 const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
+const websocket_gateway_1 = require("../websocket/websocket.gateway");
 let ProductsService = class ProductsService {
-    constructor(productModel, batchModel, packVariantModel) {
+    constructor(productModel, batchModel, packVariantModel, websocketGateway) {
         this.productModel = productModel;
         this.batchModel = batchModel;
         this.packVariantModel = packVariantModel;
+        this.websocketGateway = websocketGateway;
     }
     async create(createProductDto) {
         const { packVariants, ...productData } = createProductDto;
@@ -116,6 +118,10 @@ let ProductsService = class ProductsService {
         if (!product) {
             throw new common_1.NotFoundException("Product not found");
         }
+        this.websocketGateway.emitToOutlet(product.outletId.toString(), 'inventory:updated', {
+            productId: product._id,
+            stockQuantity: product.stockQuantity
+        });
         return product;
     }
     async getPackVariants(productId) {
@@ -151,6 +157,6 @@ exports.ProductsService = ProductsService = __decorate([
     __param(0, (0, mongoose_1.InjectModel)(product_schema_1.Product.name)),
     __param(1, (0, mongoose_1.InjectModel)(batch_schema_1.Batch.name)),
     __param(2, (0, mongoose_1.InjectModel)(pack_variant_schema_1.PackVariant.name)),
-    __metadata("design:paramtypes", [Function, Function, Function])
+    __metadata("design:paramtypes", [Function, Function, Function, websocket_gateway_1.WebsocketGateway])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

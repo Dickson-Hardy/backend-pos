@@ -17,28 +17,13 @@ async function bootstrap() {
     console.log('  PORT:', process.env.PORT);
     const isProduction = process.env.NODE_ENV === 'production';
     if (isProduction) {
-        console.log('🚀 Configuring PRODUCTION CORS');
-        const allowedOrigins = [
-            'https://frontend-poz.vercel.app',
-            'https://frontend-poz.vercel.app/',
-            'http://localhost:3000',
-            'http://localhost:3001'
-        ];
-        console.log('🔗 Allowed Origins:', allowedOrigins);
+        console.log('� Configuring PRODUCTION CORS');
         app.enableCors({
-            origin: (origin, callback) => {
-                console.log('🌐 Request from origin:', origin);
-                if (!origin)
-                    return callback(null, true);
-                if (allowedOrigins.includes(origin)) {
-                    console.log('✅ Origin allowed:', origin);
-                    return callback(null, true);
-                }
-                else {
-                    console.log('❌ Origin blocked:', origin);
-                    return callback(new Error('Not allowed by CORS'), false);
-                }
-            },
+            origin: [
+                'https://frontend-pos-gold.vercel.app',
+                'https://frontend-pos-gold.vercel.app/',
+                'http://localhost:3000'
+            ],
             credentials: true,
             methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
             allowedHeaders: [
@@ -46,11 +31,9 @@ async function bootstrap() {
                 'Authorization',
                 'X-Requested-With',
                 'Accept',
-                'Origin',
-                'x-auth-token'
+                'Origin'
             ],
-            optionsSuccessStatus: 200,
-            preflightContinue: false
+            optionsSuccessStatus: 200
         });
         console.log('✅ Production CORS configured for Vercel frontend');
     }

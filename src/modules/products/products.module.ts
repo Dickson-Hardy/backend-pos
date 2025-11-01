@@ -5,6 +5,7 @@ import { ProductsService } from "./products.service"
 import { Product, ProductSchema } from "../../schemas/product.schema"
 import { Batch, BatchSchema } from "../../schemas/batch.schema"
 import { PackVariant, PackVariantSchema } from "../../schemas/pack-variant.schema"
+import { WebsocketModule } from "../websocket/websocket.module"
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { PackVariant, PackVariantSchema } from "../../schemas/pack-variant.schem
       { name: Batch.name, schema: BatchSchema },
       { name: PackVariant.name, schema: PackVariantSchema },
     ]),
+    WebsocketModule
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

@@ -28,7 +28,9 @@
     "@nestjs/mongoose": "^10.0.0",
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/platform-socket.io": "^11.1.8",
     "@nestjs/swagger": "^7.0.0",
+    "@nestjs/websockets": "^11.1.8",
     "@types/bcrypt": "^6.0.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^2.4.3",
@@ -45,6 +47,7 @@
     "resend": "^1.0.0",
     "rxjs": "^7.8.1",
     "serialport": "^12.0.0",
+    "socket.io": "^4.8.1",
     "usb": "^2.16.0"
   },
   "devDependencies": {

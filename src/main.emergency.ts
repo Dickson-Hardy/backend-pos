@@ -23,31 +23,13 @@ async function bootstrap() {
   const isProduction = process.env.NODE_ENV === 'production'
   
   if (isProduction) {
-    // Production: Specific origins only
-    console.log('🚀 Configuring PRODUCTION CORS (Emergency)')
-    const allowedOrigins = [
-      'https://frontend-poz.vercel.app',
-      'https://frontend-poz.vercel.app/',
-      'http://localhost:3000',
-      'http://localhost:3001'
-    ]
-    
-    console.log('🔗 Allowed Origins (Emergency):', allowedOrigins)
-    
+    // Production CORS - specific origins only
     app.enableCors({
-      origin: (origin, callback) => {
-        console.log('🌐 Request from origin (Emergency):', origin)
-        // Allow requests with no origin (mobile apps, Postman, etc.)
-        if (!origin) return callback(null, true)
-        
-        if (allowedOrigins.includes(origin)) {
-          console.log('✅ Origin allowed (Emergency):', origin)
-          return callback(null, true)
-        } else {
-          console.log('❌ Origin blocked (Emergency):', origin)
-          return callback(new Error('Not allowed by CORS'), false)
-        }
-      },
+      origin: [
+        'https://frontend-pos-gold.vercel.app',
+        'https://frontend-pos-gold.vercel.app/',
+        'http://localhost:3000'
+      ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
       allowedHeaders: [
@@ -56,12 +38,11 @@ async function bootstrap() {
         'X-Requested-With',
         'Accept',
         'Origin',
-        'x-auth-token'
+        'Cache-Control'
       ],
-      optionsSuccessStatus: 200,
-      preflightContinue: false
+      optionsSuccessStatus: 200
     })
-    console.log('✅ Production CORS configured for Vercel frontend (Emergency)')
+    console.log('✅ Production CORS enabled for specific origins')
   } else {
     // Development CORS - more permissive
     app.enableCors({

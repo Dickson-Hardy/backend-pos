@@ -28,6 +28,9 @@ let ShiftsController = class ShiftsController {
         const { outletId } = req.user;
         return this.shiftsService.createShift(createShiftDto, req.user.id, outletId);
     }
+    getStats() {
+        return this.shiftsService.getStats();
+    }
     getCurrentShift(req) {
         return this.shiftsService.getCurrentShift(req.user.id);
     }
@@ -54,9 +57,6 @@ let ShiftsController = class ShiftsController {
     getShiftExpenses(id, req) {
         return this.shiftsService.getShiftExpenses(id, req.user.id);
     }
-    getStats() {
-        return this.shiftsService.getStats();
-    }
 };
 exports.ShiftsController = ShiftsController;
 __decorate([
@@ -68,6 +68,13 @@ __decorate([
     __metadata("design:paramtypes", [create_shift_dto_1.CreateShiftDto, Object]),
     __metadata("design:returntype", void 0)
 ], ShiftsController.prototype, "createShift", null);
+__decorate([
+    (0, common_1.Get)('stats'),
+    (0, swagger_1.ApiOperation)({ summary: 'Get shift statistics' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ShiftsController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('current'),
     (0, swagger_1.ApiOperation)({ summary: 'Get current active shift' }),
@@ -143,13 +150,6 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], ShiftsController.prototype, "getShiftExpenses", null);
-__decorate([
-    (0, common_1.Get)('stats'),
-    (0, swagger_1.ApiOperation)({ summary: 'Get shift statistics' }),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], ShiftsController.prototype, "getStats", null);
 exports.ShiftsController = ShiftsController = __decorate([
     (0, swagger_1.ApiTags)('shifts'),
     (0, swagger_1.ApiBearerAuth)(),

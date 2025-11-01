@@ -20,12 +20,14 @@ const sale_schema_1 = require("../../schemas/sale.schema");
 const pack_variant_schema_1 = require("../../schemas/pack-variant.schema");
 const products_service_1 = require("../products/products.service");
 const shifts_service_1 = require("../shifts/shifts.service");
+const websocket_gateway_1 = require("../websocket/websocket.gateway");
 let SalesService = class SalesService {
-    constructor(saleModel, packVariantModel, productsService, shiftsService) {
+    constructor(saleModel, packVariantModel, productsService, shiftsService, websocketGateway) {
         this.saleModel = saleModel;
         this.packVariantModel = packVariantModel;
         this.productsService = productsService;
         this.shiftsService = shiftsService;
+        this.websocketGateway = websocketGateway;
     }
     async create(createSaleDto) {
         const receiptNumber = await this.generateReceiptNumber();
@@ -54,6 +56,11 @@ let SalesService = class SalesService {
         catch (error) {
             console.error('Failed to update shift sales:', error);
         }
+        this.websocketGateway.emitToOutlet(createSaleDto.outletId, 'sale:completed', {
+            saleId: savedSale._id,
+            total: savedSale.total,
+            items: savedSale.items
+        });
         return savedSale;
     }
     async processPackSale(productId, packInfo) {
@@ -136,6 +143,149 @@ let SalesService = class SalesService {
             throw new common_1.BadRequestException('Failed to fetch daily sales data');
         }
     }
+    async searchSales(query, outletId) {
+        const filter = {
+            $or: [
+                { receiptNumber: { $regex: query, $options: 'i' } },
+                { customerName: { $regex: query, $options: 'i' } },
+                { customerPhone: { $regex: query, $options: 'i' } },
+            ]
+        };
+        if (outletId)
+            filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+        return this.saleModel.find(filter).populate('cashierId outletId').limit(50).exec();
+    }
+    async getSalesByHour(outletId, date) {
+        const targetDate = date || new Date();
+        const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
+        const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
+        const filter = {
+            saleDate: { $gte: startOfDay, $lte: endOfDay },
+            status: 'completed'
+        };
+        if (outletId)
+            filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+        const hourlyData = await this.saleModel.aggregate([
+            { $match: filter },
+            {
+                $group: {
+                    _id: { $hour: '$saleDate' },
+                    sales: { $sum: '$total' },
+                    count: { $sum: 1 }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+        return hourlyData.map(h => ({ hour: h._id, sales: h.sales, count: h.count }));
+    }
+    async getSalesByCategory(outletId, startDate, endDate) {
+        const filter = { status: 'completed' };
+        if (outletId)
+            filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+        if (startDate || endDate) {
+            filter.saleDate = {};
+            if (startDate)
+                filter.saleDate.$gte = startDate;
+            if (endDate)
+                filter.saleDate.$lte = endDate;
+        }
+        return this.saleModel.aggregate([
+            { $match: filter },
+            { $unwind: '$items' },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'items.productId',
+                    foreignField: '_id',
+                    as: 'product'
+                }
+            },
+            { $unwind: '$product' },
+            {
+                $group: {
+                    _id: '$product.category',
+                    sales: { $sum: '$items.totalPrice' },
+                    quantity: { $sum: '$items.quantity' }
+                }
+            }
+        ]);
+    }
+    async getCashierPerformance(outletId, startDate, endDate) {
+        const filter = { status: 'completed' };
+        if (outletId)
+            filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+        if (startDate || endDate) {
+            filter.saleDate = {};
+            if (startDate)
+                filter.saleDate.$gte = startDate;
+            if (endDate)
+                filter.saleDate.$lte = endDate;
+        }
+        return this.saleModel.aggregate([
+            { $match: filter },
+            {
+                $group: {
+                    _id: '$cashierId',
+                    totalSales: { $sum: '$total' },
+                    transactionCount: { $sum: 1 },
+                    averageTransaction: { $avg: '$total' }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'cashier'
+                }
+            },
+            { $unwind: '$cashier' },
+            { $sort: { totalSales: -1 } }
+        ]);
+    }
+    async getPaymentMethodBreakdown(outletId, startDate, endDate) {
+        const filter = { status: 'completed' };
+        if (outletId)
+            filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+        if (startDate || endDate) {
+            filter.saleDate = {};
+            if (startDate)
+                filter.saleDate.$gte = startDate;
+            if (endDate)
+                filter.saleDate.$lte = endDate;
+        }
+        return this.saleModel.aggregate([
+            { $match: filter },
+            {
+                $group: {
+                    _id: '$paymentMethod',
+                    total: { $sum: '$total' },
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+    }
+    async getSalesComparison(outletId) {
+        const now = new Date();
+        const today = new Date(now.setHours(0, 0, 0, 0));
+        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const filter = { status: 'completed' };
+        if (outletId)
+            filter.outletId = new mongoose_2.Types.ObjectId(outletId);
+        const [todaySales, yesterdaySales, thisWeekSales, lastWeekSales] = await Promise.all([
+            this.saleModel.aggregate([{ $match: { ...filter, saleDate: { $gte: today } } }, { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } }]),
+            this.saleModel.aggregate([{ $match: { ...filter, saleDate: { $gte: yesterday, $lt: today } } }, { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } }]),
+            this.saleModel.aggregate([{ $match: { ...filter, saleDate: { $gte: weekAgo } } }, { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } }]),
+            this.saleModel.aggregate([{ $match: { ...filter, saleDate: { $gte: new Date(weekAgo.getTime() - 7 * 24 * 60 * 60 * 1000), $lt: weekAgo } } }, { $group: { _id: null, total: { $sum: '$total' }, count: { $sum: 1 } } }])
+        ]);
+        return {
+            today: todaySales[0] || { total: 0, count: 0 },
+            yesterday: yesterdaySales[0] || { total: 0, count: 0 },
+            thisWeek: thisWeekSales[0] || { total: 0, count: 0 },
+            lastWeek: lastWeekSales[0] || { total: 0, count: 0 }
+        };
+    }
     async generateReceiptNumber() {
         const today = new Date();
         const dateStr = today.toISOString().slice(0, 10).replace(/-/g, "");
@@ -157,6 +307,7 @@ exports.SalesService = SalesService = __decorate([
     __param(0, (0, mongoose_1.InjectModel)(sale_schema_1.Sale.name)),
     __param(1, (0, mongoose_1.InjectModel)(pack_variant_schema_1.PackVariant.name)),
     __metadata("design:paramtypes", [Function, Function, products_service_1.ProductsService,
-        shifts_service_1.ShiftsService])
+        shifts_service_1.ShiftsService,
+        websocket_gateway_1.WebsocketGateway])
 ], SalesService);
 //# sourceMappingURL=sales.service.js.map
